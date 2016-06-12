@@ -1,0 +1,29 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin" android:padding="0dp" tools:context=".MainActivity">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+    android:id="@+id/mezmur"
+    android:text=""
+    android:textSize="18sp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="0dp"
+    android:gravity="center"
+    android:lineSpacingExtra="3sp"/>
+    <!--<ProgressBar-->
+    <!--android:id="@+id/ProgressBar01"-->
+    <!--android:layout_width="40dip"-->
+    <!--android:layout_height="40dip"-->
+    <!--android:indeterminateDrawable="@xml/progress"-->
+    <!--android:layout_centerInParent="true"/>-->
+
+</RelativeLayout>
+
+</ScrollView>

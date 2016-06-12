@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Orthodox Mezmur Tigrinya ( ኦርቶዶክስ መዛሙር )</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="mezmur_title">በገና የልዕል ኣለኹ</string>
+    <string-array name="mezmur_category">
+        <item>ናይ ሆሳእና መዝሙራት</item>
+        <item>ናይ ትምቀት መዝሙራት</item>
+        <item>ናይ ድንግል ማርያም መዝሙራት</item>
+        <item>ናይ ፋሲካ መዝሙራት</item>
+        <item>ናይ ንስሓ መዝሙራት</item>
+        <item>ናይ ትንሳኤ መዝሙራት</item>
+        <item>ናይ ዕርገትን መዝሙራት</item>
+        <item>ናይ ጵራቅሊጦስ መዝሙራት</item>
+        <item>ናይ ግንቦት ልደታ መዝሙራት</item>
+        <item>ናይ መላአኽቲ መዝሙራት</item>
+        <item>ናይ ቅዱሳንን መዝሙራት</item>
+        <item>ናይ ጻድቃንን መዝሙራት</item>
+        <item>ናይ ሰማአታት መዝሙራት</item>
+        <item>ንቤተ ክርስትያን ዝዝመር መዝሙራት</item>
+        <item>ንኣቦታትን ዝዝመር መዝሙራት</item>
+        <item>ናይ ምስጋና መዝሙራት</item>
+    </string-array>
+</resources>
