@@ -2,6 +2,7 @@ package com.zinalabs.orthodoxmezmur;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -50,8 +51,11 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         setContentView(R.layout.activity_list_mezmur);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() !=  null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
 
         mezmurList = (ListView) findViewById(R.id.lists);
         mezmurList.setOnItemClickListener(this);
@@ -62,6 +66,7 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         extras = getIntent().getExtras();
         catId = extras.getInt("catId");
         catTitle=extras.getString("catTitle");
+        getSupportActionBar().setTitle(catTitle);
 //
 //        try {
 //            //processXml(this);
@@ -83,8 +88,6 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
 //        }
 
         new GettingData().execute();
-
-
 
     }
 
@@ -114,12 +117,29 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         }
     }
 
-    private class GettingData extends AsyncTask<Void, Integer, Integer> {
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+
+        try {
+            Intent MezmurActivity = new Intent(ListMezmurActivity.this, MezmurActivity.class);
+            JSONObject o= (JSONObject) data.get(position);
+            int mezmurId= o.getInt("id");
+            MezmurActivity.putExtra("id", mezmurId);
+            startActivity(MezmurActivity);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private class GettingData extends AsyncTask<Void, Integer, Void> {
 
 
 
         @Override
-        protected Integer doInBackground(Void... voids) {
+        protected Void doInBackground(Void... voids) {
 
             try {
 
@@ -135,33 +155,14 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
             } catch (JSONException e) {
                 Log.e("TAG",e.getMessage());
             }
-
-            return 1;
+            return null;
         }
 
 
-        protected void onPostExecute(Integer result) {
-            Toast.makeText(context, "Done", Toast.LENGTH_LONG).show();
+        protected void onPostExecute(Void result) {
             inflateData();
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public JSONArray getMezmursByCid(Activity context, int categoryId) throws ParserConfigurationException, IOException, SAXException, JSONException {
         JSONArray returna=new JSONArray();
@@ -244,8 +245,5 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         return true;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-    }
 }
