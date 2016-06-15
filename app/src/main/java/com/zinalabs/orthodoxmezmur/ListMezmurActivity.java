@@ -67,7 +67,7 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         catId = extras.getInt("catId");
         catTitle=extras.getString("catTitle");
         getSupportActionBar().setTitle(catTitle);
-//
+
 //        try {
 //            //processXml(this);
 //            Bundle extras = getIntent().getExtras();
