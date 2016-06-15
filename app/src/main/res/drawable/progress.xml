@@ -1,26 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rotate xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fromDegrees="0"
-    android:pivotX="50%"
-    android:pivotY="50%"
-    android:toDegrees="360" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"> <!-- Remove <selector> wehn you are using <layer-list> -->
+    <item>
+        <!-- Our grey ring, 1st element of our list -->
+        <shape android:shape="ring"
+            android:useLevel="false"
+            android:innerRadius="140dp"
+            android:thicknessRatio="24"> <!-- Higher values, thinner line -->
+            <solid android:color="#bdc3c7"> </solid>
+        </shape>
+    </item>
 
-    <shape
-        android:innerRadiusRatio="3"
-        android:shape="ring"
-        android:thicknessRatio="8"
-        android:useLevel="false" >
-
-        <size
-            android:height="76dip"
-            android:width="76dip" />
-
-        <gradient
-            android:angle="60"
-            android:endColor="@color/action"
-            android:startColor="#2a4a6a"
-            android:type="sweep"
-            android:useLevel="false" />
-
-    </shape>
-</rotate>
+    <item>
+        <!-- Our red ring, 2nd element of our list -->
+        <shape android:shape="ring"
+            android:useLevel="true"
+            android:innerRadius="140dp"
+            android:thicknessRatio="24">
+            <solid android:color="#e74c3c"> </solid>
+        </shape>
+    </item>
+</layer-list>
