@@ -43,7 +43,7 @@
                         android:layout_height="?attr/actionBarSize"
                         app:layout_collapseMode="pin"/>
             </android.support.design.widget.AppBarLayout>
-            <!-- The main content view where fragments are loaded -->
+
 
 
 
@@ -70,22 +70,3 @@
             app:menu="@menu/menu_mezmur" />
 
 </android.support.v4.widget.DrawerLayout>
-
-    <!--<TextView-->
-        <!--android:id="@+id/mezmur"-->
-        <!--android:text=""-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingRight="5dp"-->
-        <!--android:paddingLeft="5dp"-->
-        <!--android:gravity="center"-->
-        <!--android:textStyle="bold"-->
-        <!--android:lineSpacingExtra="3sp"/>-->
-    <!--<ProgressBar-->
-        <!--android:id="@+id/ProgressBar01"-->
-        <!--android:layout_width="40dip"-->
-        <!--android:layout_height="40dip"-->
-        <!--android:indeterminateDrawable="@xml/progress"-->
-        <!--android:layout_centerInParent="true"/>-->
-
-

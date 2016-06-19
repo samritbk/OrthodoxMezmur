@@ -14,6 +14,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -44,7 +45,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener {
 
     TextView mezmurTV;
     ListView lists;
@@ -54,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
     DrawerLayout mDrawer;
     ActionBarDrawerToggle drawableToggle;
     Activity context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +63,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeButtonEnabled(true);
         context = this;
         // Tie DrawerLayout events to the ActionBarToggle
         //mDrawer.addDrawerListener(drawerToggle);
@@ -68,11 +71,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         //mezmurTV = (TextView) findViewById(R.id.mezmur);
         //in= this.getResources().openRawResource(R.raw.index);
 
-
-
-
-
-/*
+        /*
         try {
             //processXml(this);
             //String[] s=getMezmurById(this, 1);
@@ -87,6 +86,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
             e.printStackTrace();
         }
 */
+
         lists = (ListView) findViewById(R.id.lists);
 
         items=getResources().getStringArray(R.array.mezmur_category);

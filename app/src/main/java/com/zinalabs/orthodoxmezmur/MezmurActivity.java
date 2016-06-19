@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,12 +28,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class MezmurActivity extends ActionBarActivity {
+public class MezmurActivity extends AppCompatActivity {
 
 
     TextView mezmurTV;
     InputStream in;
-
+    Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,12 @@ public class MezmurActivity extends ActionBarActivity {
 
         //ScrollingMovementMethod.getInstance();
         mezmurTV = (TextView) findViewById(R.id.mezmur);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() !=  null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         in= this.getResources().openRawResource(R.raw.index);
 
 
@@ -49,7 +57,8 @@ public class MezmurActivity extends ActionBarActivity {
             String[] s=getMezmurById(this, id);
             setTitle(s[1]);
             String a=mezmurOrg(s[2], s[3]);
-            mezmurTV.setText(s[0] +"\n" + s[1] +"\n" + a);
+            toolbar.setTitle(s[0]);
+            mezmurTV.setText("\n" + s[1] +"\n" + a);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -183,7 +192,6 @@ public class MezmurActivity extends ActionBarActivity {
     public String[] getMezmurById(Activity context, int mezmurId) throws ParserConfigurationException, IOException, SAXException {
         String[] returna=new String[4];
 
-
         DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder= documentBuilderFactory.newDocumentBuilder();
         Document xmlDocument = documentBuilder.parse(in);
@@ -192,7 +200,7 @@ public class MezmurActivity extends ActionBarActivity {
 
         NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
 
-        Node myNode=nodes.item(mezmurId - 1);
+        Node myNode=nodes.item(mezmurId);
         NodeList myNodeChildren=myNode.getChildNodes();
 
         returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();

@@ -6,6 +6,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/action</item>
         <item name="colorPrimary">@color/action</item>
+        <item name="android:textColor">#333</item>
     </style>
     <style name="MySearchViewStyle" parent="Widget.AppCompat.SearchView">
         <!-- The layout for the search view. Be careful. -->
