@@ -7,7 +7,8 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
     <TextView
     android:id="@+id/mezmur"
     android:text=""
@@ -16,7 +17,6 @@
     android:layout_height="match_parent"
     android:padding="0dp"
     android:gravity="center"
-    android:layout_marginTop="?attr/actionBarSize"
     android:lineSpacingExtra="3sp"/>
     <!--<ProgressBar-->
     <!--android:id="@+id/ProgressBar01"-->
