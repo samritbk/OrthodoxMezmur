@@ -2,7 +2,10 @@ package com.zinalabs.orthodoxmezmur;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +16,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -22,6 +28,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,6 +41,8 @@ public class MezmurActivity extends AppCompatActivity {
     TextView mezmurTV;
     InputStream in;
     Toolbar toolbar;
+    int mezmurId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,25 +62,22 @@ public class MezmurActivity extends AppCompatActivity {
         try {
             //processXml(this);
             Bundle extras=getIntent().getExtras();
-            int id=extras.getInt("id");
-            String[] s=getMezmurById(this, id);
+            mezmurId=extras.getInt("id");
+            String[] s=getMezmurById(this, mezmurId);
             setTitle(s[1]);
             String a=mezmurOrg(s[2], s[3]);
             toolbar.setTitle(s[0]);
             mezmurTV.setText("\n" + s[1] +"\n" + a);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-
+        //---------------------------------------------------------------------------------------
 
     }
+
     public String mezmurOrg(String azmach,String teref){
 
-        StringBuffer myMezmur=new StringBuffer();
+        StringBuilder myMezmur=new StringBuilder();
         String divider = "\n *** \n";
         myMezmur.append(azmach);
         myMezmur.append(divider);
@@ -82,7 +88,7 @@ public class MezmurActivity extends AppCompatActivity {
         return myMezmur.toString();
     }
     public String getMezmurFromXml(Activity activity) throws IOException, XmlPullParserException {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         Resources res = activity.getResources();
         XmlPullParser xpp = res.getXml(R.xml.index);
         xpp.next();
@@ -133,8 +139,8 @@ public class MezmurActivity extends AppCompatActivity {
 
 
             //Toast.makeText(context, newNode.getLength()+"",Toast.LENGTH_LONG).show();
-            Node currentChild=null;
-            String currentChildName= null;
+            Node currentChild;
+            String currentChildName;
             for(int j=0; j < newNode.getLength(); j++){
                 currentChild = newNode.item(j);
                 currentChildName = newNode.item(j).getNodeName();
@@ -148,8 +154,6 @@ public class MezmurActivity extends AppCompatActivity {
         //Toast.makeText(context,sb.toString(),Toast.LENGTH_LONG).show();
 
     }
-
-
 
     public String[] getMezmurIdByCategory(int catId) throws ParserConfigurationException, IOException, SAXException {
         String[] returna=new String[4];
@@ -165,9 +169,6 @@ public class MezmurActivity extends AppCompatActivity {
 
         int mezmur=nodes.getLength();
 
-
-//
-//
 //        Node myNode=nodes.item(mezmurId - 1);
 //        NodeList myNodeChildren=myNode.getChildNodes();
 //
@@ -183,7 +184,6 @@ public class MezmurActivity extends AppCompatActivity {
 //            }
 //
 //        }
-//
 
         return returna;
     }
@@ -208,10 +208,11 @@ public class MezmurActivity extends AppCompatActivity {
 
         for (int i=0;i < myNodeChildren.getLength(); i++){
             Node currentChild=myNodeChildren.item(i);
+            String toPut= currentChild.getTextContent().toString();
             if(currentChild.getNodeName().equalsIgnoreCase("azmach")){
-                returna[2] = currentChild.getTextContent().toString();
+                returna[2] = toPut;
             }else if(currentChild.getNodeName().equalsIgnoreCase("teref")){
-                returna[3] = currentChild.getTextContent().toString();
+                returna[3] = toPut;
             }
 
         }
@@ -219,12 +220,45 @@ public class MezmurActivity extends AppCompatActivity {
         return returna;
     }
 
+
+
+    private boolean checkIfMezmurIsBookmarked(int mezmurId){
+        SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
+        String s= prefs.getString("bookMarkedMez", null);
+        boolean toReturn= false;
+        if(s != null){
+            try {
+                JSONArray a= new JSONArray(s);
+                int count=a.length();
+
+                for(int i=0; i < count; i++){
+                    if(a.get(i) == mezmurId){
+                        toReturn = true;
+                        break;
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return toReturn;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_mezmur, menu);
 
+        if(checkIfMezmurIsBookmarked(mezmurId)){
 
+            MenuItem action_button = menu.findItem(R.id.action_bookmark);
+            if(action_button.isEnabled()) {
+                Drawable d = getResources().getDrawable(R.drawable.ic_bookmark_white_48dp);
+                action_button.setIcon(d);
+                Log.i("Mezmur", "Got it & Changed it");
+            }
+
+        }
         return true;
     }
 
@@ -245,6 +279,75 @@ public class MezmurActivity extends AppCompatActivity {
             b.setTitle("Ok");
             b.show();
             item.setIcon(R.drawable.ic_view_day);
+
+        }else if (id== R.id.action_bookmark){
+            //TODO: Make a fuction that takes a MezmurId and either bordmarks or leaves us unbroadmarked
+            Drawable d = getResources().getDrawable(R.drawable.ic_bookmark_border_white_48dp);
+            SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
+            SharedPreferences.Editor editor = prefs.edit();
+            String prefMez=prefs.getString("bookMarkedMez",null);
+
+            if(!checkIfMezmurIsBookmarked(mezmurId)){
+                Log.d("Mezmur", "I got here sorry");
+
+                if(prefMez == null){// If the shared preferences is null
+
+                    JSONArray json= new JSONArray();
+                    json.put(mezmurId);
+                    editor.putString("bookMarkedMez", json.toString());
+                    editor.apply();
+
+                    Log.i("Mezmur", prefs.getString("bookMarkedMez", null));
+
+                }else{
+                    //try {
+
+                    if(prefMez != null){
+                        JSONArray s= null;
+                        try {
+                            s = new JSONArray(prefMez);
+                            s.put(mezmurId);
+                            editor.putString("bookMarkedMez", s.toString());
+                            editor.apply();
+                            Log.i("Mezmur", "appenedOnValue"+ prefs.getString("bookMarkedMez", null));
+                        } catch (JSONException e) {
+                            Log.i("Mezmur", e.getMessage());
+                        }
+                    }else{
+                        Log.e("Mezmur","PROBLEMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
+                    }
+//                } catch (JSONException e) {
+//                    Log.e("Mezmur",e.getMessage());
+//                }
+                }
+            }else{
+                if(prefMez != null) {
+                    JSONArray s = null;
+                    try {
+                        s = new JSONArray(prefMez);
+                        int count = s.length();
+                        for(int i=0; i < count; i++){
+                            if(s.get(i) == mezmurId){
+                                s.put(i, 0); break;
+                            }
+                        }
+                        editor.putString("bookMarkedMez", s.toString());
+                        editor.apply();
+                        Log.i("Mezmur", "madeOne 0" + prefs.getString("bookMarkedMez", null));
+                    } catch (JSONException e) {
+                        Log.i("Mezmur", e.getMessage());
+                    }
+                }
+            }
+
+
+
+
+            if(item.getIcon().getConstantState().equals(d.getConstantState())) {
+                item.setIcon(R.drawable.ic_bookmark_white_48dp);
+            }else{
+                item.setIcon(R.drawable.ic_bookmark_border_white_48dp);
+            }
         }
 
 

@@ -127,7 +127,7 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
             int mezmurId= o.getInt("id");
             MezmurActivity.putExtra("id", mezmurId);
             startActivity(MezmurActivity);
-            Toast.makeText(context, mezmurId+"", Toast.LENGTH_LONG).show();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
