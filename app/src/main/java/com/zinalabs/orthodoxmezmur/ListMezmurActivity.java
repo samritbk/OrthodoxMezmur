@@ -63,33 +63,22 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
 
         //mezmurList = (ListView) findViewById(R.id.listmezmur);
         in = this.getResources().openRawResource(R.raw.index);
-        extras = getIntent().getExtras();
-        catId = extras.getInt("catId");
-        catTitle=extras.getString("catTitle");
+            extras = getIntent().getExtras();
+        if(extras != null) {
+            if (extras.containsKey("catId")) {
+                catId = extras.getInt("catId");
+                catTitle = extras.getString("catTitle");
+            }
+        }else{
+            catId=MainActivity.CAT_ID;
+            catTitle=MainActivity.CAT_TITLE;
+        }
         getSupportActionBar().setTitle(catTitle);
-
-//        try {
-//            //processXml(this);
-//            Bundle extras = getIntent().getExtras();
-//            int catId = extras.getInt("catId");
-//            String catTitle=extras.getString("catTitle");
-//            data=getMezmursByCid(this,catId);
-//
-//            Toast.makeText(this, data.toString(), Toast.LENGTH_LONG).show();
-//
-//        } catch (ParserConfigurationException e) {
-//            Log.e("TAG",e.getMessage());
-//        } catch (IOException e) {
-//            Log.e("TAG",e.getMessage());
-//        } catch (SAXException e) {
-//            Log.e("TAG",e.getMessage());
-//        } catch (JSONException e) {
-//            Log.e("TAG",e.getMessage());
-//        }
 
         new GettingData().execute();
 
     }
+
 
     private void inflateData(){
         String[] toAdapt=null;

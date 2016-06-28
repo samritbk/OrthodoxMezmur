@@ -56,6 +56,7 @@ public class MezmurActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
         in= this.getResources().openRawResource(R.raw.index);
 
 
@@ -74,6 +75,7 @@ public class MezmurActivity extends AppCompatActivity {
         //---------------------------------------------------------------------------------------
 
     }
+
 
     public String mezmurOrg(String azmach,String teref){
 

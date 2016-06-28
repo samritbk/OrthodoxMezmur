@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     DrawerLayout mDrawer;
     ActionBarDrawerToggle drawableToggle;
     Activity context;
+    public static int CAT_ID=0;
+    public static String CAT_TITLE=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -310,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //Toast.makeText(MainActivity.this,"Submitted query"+query,Toast.LENGTH_LONG).show();
+
                 return false;
             }
 
@@ -329,6 +332,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         Intent mezmurActivity = new Intent(MainActivity.this,ListMezmurActivity.class);
         mezmurActivity.putExtra("catId",position+1);
         mezmurActivity.putExtra("catTitle",items[position]);
+        CAT_ID= position+1;
+        CAT_TITLE= items[position];
         startActivity(mezmurActivity);
 
     }
