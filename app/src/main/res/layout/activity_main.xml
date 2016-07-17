@@ -67,8 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@android:color/white"
-            app:menu="@menu/menu_mezmur" >
+            android:background="@android:color/white" >
     <TextView
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -80,5 +79,11 @@
         android:textSize="18sp"
         android:paddingLeft="16dp"
         android:paddingTop="16dp"/>
+        <ListView
+            android:id="@+id/bookmarkedList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:layout_marginTop="?actionBarSize"/>
     </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>

@@ -5,14 +5,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +67,8 @@ public class MezmurActivity extends AppCompatActivity {
             //processXml(this);
             Bundle extras=getIntent().getExtras();
             mezmurId=extras.getInt("id");
+            // Very confusing thing is happening here check the function below. It needs -1. I am not sure why?
+            mezmurId=mezmurId-1;
             String[] s=getMezmurById(this, mezmurId);
             setTitle(s[1]);
             String a=mezmurOrg(s[2], s[3]);
@@ -300,6 +305,12 @@ public class MezmurActivity extends AppCompatActivity {
                     editor.apply();
 
                     Log.i("Mezmur", prefs.getString("bookMarkedMez", null));
+                    View all=findViewById(R.id.all);
+                    Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
+                    View view = snack.getView();
+                    TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+                    tv.setTextColor(Color.WHITE);
+                    snack.show();
 
                 }else{
                     //try {
@@ -311,6 +322,19 @@ public class MezmurActivity extends AppCompatActivity {
                             s.put(mezmurId);
                             editor.putString("bookMarkedMez", s.toString());
                             editor.apply();
+                            View all=findViewById(R.id.all);
+                            final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
+                            snack.setAction("ሐራይ", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    snack.dismiss();
+                                }
+                            });
+                            View view = snack.getView();
+                            TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+                            tv.setTextColor(Color.WHITE);
+                            snack.show();
+
                             Log.i("Mezmur", "appenedOnValue"+ prefs.getString("bookMarkedMez", null));
                         } catch (JSONException e) {
                             Log.i("Mezmur", e.getMessage());

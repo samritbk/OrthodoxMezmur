@@ -3,6 +3,8 @@ package com.zinalabs.orthodoxmezmur;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -23,12 +25,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,6 +44,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -53,10 +60,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     InputStream in;
     Toolbar toolbar;
     DrawerLayout mDrawer;
-    ActionBarDrawerToggle drawableToggle;
     Activity context;
     public static int CAT_ID=0;
     public static String CAT_TITLE=null;
+    JSONArray BOOKMARKED;
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,47 +75,127 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         context = this;
-        // Tie DrawerLayout events to the ActionBarToggle
-        //mDrawer.addDrawerListener(drawerToggle);
-        //ScrollingMovementMethod.getInstance();
-        //mezmurTV = (TextView) findViewById(R.id.mezmur);
-        //in= this.getResources().openRawResource(R.raw.index);
+        Calendar c = Calendar.getInstance();
+        int date = c.get(Calendar.DATE);
+        int month = c.get(Calendar.MONTH);
+        int year = c.get(Calendar.YEAR);
 
-        /*
-        try {
-            //processXml(this);
-            //String[] s=getMezmurById(this, 1);
-            items = getAllMezmurNames(this);
-            Log.i("TAG", items.length + "");
-//            mezmurTV.setText(s[0] +"\n" + s[1] +"\n" + s[2] +"\n***\n" + s[3]);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
-*/
+
+        DateTime dtISO = new DateTime(year, month, date,12,0,0,0);
+
+        // find out what the same instant is using the Ethiopic Chronology
+        DateTime dtEthiopic = dtISO.withChronology(EthiopicChronology.getInstance());
+        Toast.makeText(this, dtEthiopic.toString()+"\n"+date+month+year, Toast.LENGTH_LONG).show();
 
         lists = (ListView) findViewById(R.id.lists);
 
         items=getResources().getStringArray(R.array.mezmur_category);
 
-        Toast.makeText(this,items.length+"",Toast.LENGTH_LONG).show();
         if(items.length != 0){
             ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
             lists.setAdapter(adapter);
         }
         lists.setOnItemClickListener(this);
 
-        DateTime dtISO = new DateTime(2016, 5, 1, 12, 0, 0, 0);
 
-        // find out what the same instant is using the Ethiopic Chronology
-        DateTime dtEthiopic = dtISO.withChronology(EthiopicChronology.getInstance());
-        Toast.makeText(this, dtEthiopic.toString(), Toast.LENGTH_LONG).show();
+        try {
+            Log.v("Mezmur", getBookmarkedIds().toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            inflateBookmarkedList(R.id.bookmarkedList, getBookmarkedIds());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.hello_world, R.string.hello_world)
+        {
+
+            public void onDrawerClosed(View view)
+            {
+                supportInvalidateOptionsMenu();
+                //drawerOpened = false;
+            }
+
+            public void onDrawerOpened(View drawerView)
+            {
+                supportInvalidateOptionsMenu();
+                //drawerOpened = true;
+            }
+        };
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState)
+    {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    private  void inflateBookmarkedList(int ListViewId, JSONArray bookMarkedData) throws JSONException, IOException, SAXException, ParserConfigurationException {
+        BOOKMARKED = bookMarkedData;
+        int count= bookMarkedData.length();
+        String[] toReturn = new String[count];
+        for(int i= 0; i < count; i++){
+            int mezmurID=bookMarkedData.getInt(i);
+            String[] MEZdata= getMezmurById(context, mezmurID);
+            toReturn[i]= MEZdata[1];
+            Log.d("Mezmur", toReturn[i].toString());
+//TODO: Inflate the data in to listView
+        }
+        Log.d("Mezmur", toReturn.toString());
+        if(toReturn.length != 0){
+            ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,toReturn);
+            ListView bookMarkedList= (ListView) findViewById(R.id.bookmarkedList);
+            bookMarkedList.setAdapter(adapter);
+        }
+
+    }
+    private JSONArray getBookmarkedIds() throws JSONException {
+        SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
+        String s= prefs.getString("bookMarkedMez", null);
+        JSONArray toReturn= new JSONArray();
+        if(s != null){
+            try {
+                JSONArray a= new JSONArray(s);
+                int count=a.length();
+
+                for(int i=0; i < count; i++){
+                    if(a.get(i) != 0){
+                        toReturn.put(a.get(i));
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return toReturn;
+    }
 
 
     public void getCategoryById(Activity context, int categoryId) throws ParserConfigurationException, IOException, SAXException {
@@ -233,7 +322,10 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     public String[] getMezmurById(Activity context, int mezmurId) throws ParserConfigurationException, IOException, SAXException {
         String[] returna=new String[4];
-
+        // id
+        // title
+        // azmach
+        // teref
         InputStream in= context.getResources().openRawResource(R.raw.index);
 
         DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
@@ -244,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
 
-        Node myNode=nodes.item(mezmurId - 1);
+        Node myNode=nodes.item(mezmurId);
         NodeList myNodeChildren=myNode.getChildNodes();
 
         returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();
@@ -283,8 +375,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             if(myNode.getAttributes().getNamedItem("title") != null)
                 returna[i] = myNode.getAttributes().getNamedItem("title").getTextContent();
         }
-        Toast.makeText(context,count+"",Toast.LENGTH_LONG).show();
-
 
         return returna;
     }
@@ -318,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                //mezmur.setText(newText);
+                Toast.makeText(context, newText, Toast.LENGTH_LONG).show();
                 return false;
             }
         });
@@ -337,14 +427,13 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         startActivity(mezmurActivity);
 
     }
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // The action bar home/up action should open or close the drawer.
         switch (item.getItemId()) {
             case android.R.id.home:
-                mDrawer.openDrawer(GravityCompat.START);
+                drawerLayout.openDrawer(GravityCompat.START);  // OPEN DRAWER
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

@@ -7,15 +7,19 @@ import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -28,6 +32,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,11 +44,15 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
     ListView mezmurList;
     InputStream in;
     Toolbar toolbar;
-    JSONArray data;
+    static JSONArray data;
     Activity context;
     Bundle extras;
     int catId= 0;
     String catTitle= null;
+    TextView contemoraryTitle;
+    RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,34 +60,40 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         setContentView(R.layout.activity_list_mezmur);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() !=  null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-
-        mezmurList = (ListView) findViewById(R.id.lists);
-        mezmurList.setOnItemClickListener(this);
+        //      mezmurList = (ListView) findViewById(R.id.lists);
+//        mezmurList.setOnItemClickListener(this);
         context = this;
 
+        //contemoraryTitle = (TextView) findViewById(R.id.contemoraryTitle);
         //mezmurList = (ListView) findViewById(R.id.listmezmur);
         in = this.getResources().openRawResource(R.raw.index);
-            extras = getIntent().getExtras();
-        if(extras != null) {
+        extras = getIntent().getExtras();
+        if (extras != null) {
             if (extras.containsKey("catId")) {
                 catId = extras.getInt("catId");
                 catTitle = extras.getString("catTitle");
             }
-        }else{
-            catId=MainActivity.CAT_ID;
-            catTitle=MainActivity.CAT_TITLE;
+        } else {
+            catId = MainActivity.CAT_ID;
+            catTitle = MainActivity.CAT_TITLE;
         }
         getSupportActionBar().setTitle(catTitle);
-
         new GettingData().execute();
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
     }
-
 
     private void inflateData(){
         String[] toAdapt=null;
@@ -100,15 +115,31 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
 
                 }
 
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, toAdapt);
-                mezmurList.setAdapter(adapter);
+                //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, toAdapt);
+                //mezmurList.setAdapter(adapter);
+
+                ArrayList<String> myDataset= convertStringArrayToArraylist(toAdapt);
+
+
+                mAdapter = new MyAdapter(myDataset, mRecyclerView);
+                mRecyclerView.setAdapter(mAdapter);
+
+                Log.d("Mezmur", data.toString());
+
             }
         }
     }
 
+    public static ArrayList<String> convertStringArrayToArraylist(String[] strArr){
+        ArrayList<String> stringList = new ArrayList<String>();
+        for (String s : strArr) {
+            stringList.add(s);
+        }
+        return stringList;
+    }
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-
 
         try {
             Intent MezmurActivity = new Intent(ListMezmurActivity.this, MezmurActivity.class);

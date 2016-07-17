@@ -36,19 +36,17 @@
                 android:fitsSystemWindows="true"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:elevation="3dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:layout_scrollFlags="scroll|enterAlways"/>
-
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:elevation="3dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:layout_collapseMode="pin"/>
             </android.support.design.widget.AppBarLayout>
-            <!-- The main content view where fragments are loaded -->
-            <FrameLayout
-                android:id="@+id/flContent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+
+
+
+
             <ListView
                 android:id="@+id/lists"
                 android:layout_width="match_parent"
@@ -56,38 +54,36 @@
                 android:layout_marginTop="?attr/actionBarSize"
                 android:textColor="#333333"
                 android:paddingBottom="5sp"
-                android:background="#FFFFFF" />
+                android:background="#FFFFFF"/>
         </android.support.design.widget.CoordinatorLayout>
 
 
 
     <!-- The navigation drawer that comes from the left -->
         <!-- Note that `android:layout_gravity` needs to be set to 'start' -->
-        <android.support.design.widget.NavigationView
+
+    <android.support.design.widget.NavigationView
             android:id="@+id/nvView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@android:color/white"
-            app:menu="@menu/menu_mezmur" />
-
+            android:background="@android:color/white" >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:textColor="#FFF"
+        android:background="@color/action"
+        android:text="Bookmarks"
+        android:textSize="18sp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"/>
+        <ListView
+            android:id="@+id/bookmarkedList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:layout_marginTop="?actionBarSize"/>
+    </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>
-
-    <!--<TextView-->
-        <!--android:id="@+id/mezmur"-->
-        <!--android:text=""-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:paddingRight="5dp"-->
-        <!--android:paddingLeft="5dp"-->
-        <!--android:gravity="center"-->
-        <!--android:textStyle="bold"-->
-        <!--android:lineSpacingExtra="3sp"/>-->
-    <!--<ProgressBar-->
-        <!--android:id="@+id/ProgressBar01"-->
-        <!--android:layout_width="40dip"-->
-        <!--android:layout_height="40dip"-->
-        <!--android:indeterminateDrawable="@xml/progress"-->
-        <!--android:layout_centerInParent="true"/>-->
-
-
