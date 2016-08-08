@@ -232,35 +232,35 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem settings=menu.findItem(R.id.action_settings);
-        MenuItem search=menu.findItem(R.id.action_search);
-
-        settings.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-
-                return false;
-            }
-        });
-
-        //final TextView mezmur= (TextView) findViewById(R.id.mezmur);
-        SearchView searchView= (SearchView) MenuItemCompat.getActionView(search);
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //Toast.makeText(MainActivity.this,"Submitted query"+query,Toast.LENGTH_LONG).show();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                //mezmur.setText(newText);
-                return false;
-            }
-        });
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        MenuItem settings=menu.findItem(R.id.action_settings);
+//        MenuItem search=menu.findItem(R.id.action_search);
+//
+//        settings.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//
+//
+//                return false;
+//            }
+//        });
+//
+//        //final TextView mezmur= (TextView) findViewById(R.id.mezmur);
+//        SearchView searchView= (SearchView) MenuItemCompat.getActionView(search);
+//
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                //Toast.makeText(MainActivity.this,"Submitted query"+query,Toast.LENGTH_LONG).show();
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                //mezmur.setText(newText);
+//                return false;
+//            }
+//        });
 
         return true;
     }

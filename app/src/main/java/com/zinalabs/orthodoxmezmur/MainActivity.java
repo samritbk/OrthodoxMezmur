@@ -34,6 +34,7 @@ import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -77,13 +78,17 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         getSupportActionBar().setHomeButtonEnabled(true);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         context = this;
+        in= getResources().openRawResource(R.raw.index);
+
         Calendar c = Calendar.getInstance();
         int date = c.get(Calendar.DATE);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;
         int year = c.get(Calendar.YEAR);
 
 
         DateTime dtISO = new DateTime(year, month, date,12,0,0,0);
+
+
 
         // find out what the same instant is using the Ethiopic Chronology
         DateTime dtEthiopic = dtISO.withChronology(EthiopicChronology.getInstance());
@@ -101,26 +106,30 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
 
         try {
-            Log.v("Mezmur", getBookmarkedIds().toString());
-
-        } catch (JSONException e) {
+            Constant.bookMarkedIds=getBookmarkedIds();
+            inflateBookmarkedList(R.id.bookmarkedList, Constant.bookMarkedIds);
+        } catch (JSONException | IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
 
-        try {
-            inflateBookmarkedList(R.id.bookmarkedList, getBookmarkedIds());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+        ListView bookMarkedList= (ListView) findViewById(R.id.bookmarkedList);
+        bookMarkedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent MezmurActivity = new Intent(MainActivity.this, MezmurActivity.class);
+                int mezmurId=0;
+                try {
+                    mezmurId = (int) Constant.bookMarkedIds.get(i);
+                    //Log.v("Mezmur", mezmurId+" from "+Constant.bookMarkedIds.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MezmurActivity.putExtra("id", mezmurId);
+                startActivity(MezmurActivity);
+            }
+        });
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.hello_world, R.string.hello_world)
-        {
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.hello_world, R.string.hello_world){
 
             public void onDrawerClosed(View view)
             {
@@ -144,34 +153,34 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState)
-    {
+    protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig)
-    {
+    public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     private  void inflateBookmarkedList(int ListViewId, JSONArray bookMarkedData) throws JSONException, IOException, SAXException, ParserConfigurationException {
-        BOOKMARKED = bookMarkedData;
+        //BOOKMARKED = bookMarkedData;
+        Log.e("Mezmur", bookMarkedData.toString());
         int count= bookMarkedData.length();
         String[] toReturn = new String[count];
         for(int i= 0; i < count; i++){
             int mezmurID=bookMarkedData.getInt(i);
-            String[] MEZdata= getMezmurById(context, mezmurID);
+            //String[] MEZdata= getMezmurById(context, mezmurID);
+            String[] MEZdata=getMezmurById(this, mezmurID);
+            Log.e("Mezmur", mezmurID + MEZdata[1]);
             toReturn[i]= MEZdata[1];
-            Log.d("Mezmur", toReturn[i].toString());
-//TODO: Inflate the data in to listView
+            //TODO: Inflate the data in to listView
         }
-        Log.d("Mezmur", toReturn.toString());
+
         if(toReturn.length != 0){
             ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,toReturn);
-            ListView bookMarkedList= (ListView) findViewById(R.id.bookmarkedList);
+            ListView bookMarkedList= (ListView) findViewById(ListViewId);
             bookMarkedList.setAdapter(adapter);
         }
 
@@ -336,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
 
-        Node myNode=nodes.item(mezmurId);
+        Node myNode=nodes.item(mezmurId-1);
         NodeList myNodeChildren=myNode.getChildNodes();
 
         returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();
@@ -354,6 +363,37 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         return returna;
     }
+
+//    public String[] getMezmurById(Activity context, int mezmurId) throws ParserConfigurationException, IOException, SAXException {
+//        String[] returna=new String[4];
+//
+//        DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
+//        DocumentBuilder documentBuilder= documentBuilderFactory.newDocumentBuilder();
+//        Document xmlDocument = documentBuilder.parse(in);
+//
+//        org.w3c.dom.Element rootElement=xmlDocument.getDocumentElement();
+//
+//        NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
+//
+//        Node myNode=nodes.item(mezmurId-1);
+//        NodeList myNodeChildren=myNode.getChildNodes();
+//
+//        returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();
+//        returna[1] = myNode.getAttributes().getNamedItem("title").getTextContent();
+//
+//        for (int i=0;i < myNodeChildren.getLength(); i++){
+//            Node currentChild=myNodeChildren.item(i);
+//            String toPut= currentChild.getTextContent().toString();
+//            if(currentChild.getNodeName().equalsIgnoreCase("azmach")){
+//                returna[2] = toPut;
+//            }else if(currentChild.getNodeName().equalsIgnoreCase("teref")){
+//                returna[3] = toPut;
+//            }
+//
+//        }
+//
+//        return returna;
+//    }
 
     public String[] getAllMezmurNames(Activity context) throws ParserConfigurationException, IOException, SAXException {
 

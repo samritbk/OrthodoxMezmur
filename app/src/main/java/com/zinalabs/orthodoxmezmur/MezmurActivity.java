@@ -62,17 +62,15 @@ public class MezmurActivity extends AppCompatActivity {
 
         in= this.getResources().openRawResource(R.raw.index);
 
-
         try {
             //processXml(this);
             Bundle extras=getIntent().getExtras();
             mezmurId=extras.getInt("id");
-            // Very confusing thing is happening here check the function below. It needs -1. I am not sure why?
-            mezmurId=mezmurId-1;
             String[] s=getMezmurById(this, mezmurId);
             setTitle(s[1]);
             String a=mezmurOrg(s[2], s[3]);
             toolbar.setTitle(s[0]);
+            Log.d("Mezmur", mezmurId+"");
             mezmurTV.setText("\n" + s[1] +"\n" + a);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
@@ -207,7 +205,7 @@ public class MezmurActivity extends AppCompatActivity {
 
         NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
 
-        Node myNode=nodes.item(mezmurId);
+        Node myNode=nodes.item(mezmurId-1);
         NodeList myNodeChildren=myNode.getChildNodes();
 
         returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();
@@ -262,7 +260,6 @@ public class MezmurActivity extends AppCompatActivity {
             if(action_button.isEnabled()) {
                 Drawable d = getResources().getDrawable(R.drawable.ic_bookmark_white_48dp);
                 action_button.setIcon(d);
-                Log.i("Mezmur", "Got it & Changed it");
             }
 
         }
@@ -288,96 +285,95 @@ public class MezmurActivity extends AppCompatActivity {
             item.setIcon(R.drawable.ic_view_day);
 
         }else if (id== R.id.action_bookmark){
-            //TODO: Make a fuction that takes a MezmurId and either bordmarks or leaves us unbroadmarked
-            Drawable d = getResources().getDrawable(R.drawable.ic_bookmark_border_white_48dp);
-            SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
-            SharedPreferences.Editor editor = prefs.edit();
-            String prefMez=prefs.getString("bookMarkedMez",null);
 
-            if(!checkIfMezmurIsBookmarked(mezmurId)){
-                Log.d("Mezmur", "I got here sorry");
+            makeBookmarkAndToggleIC(mezmurId, item);
 
-                if(prefMez == null){// If the shared preferences is null
+        }
 
-                    JSONArray json= new JSONArray();
-                    json.put(mezmurId);
-                    editor.putString("bookMarkedMez", json.toString());
-                    editor.apply();
+        return super.onOptionsItemSelected(item);
+    }
+    private void makeBookmarkAndToggleIC(int mezmurId, MenuItem item){
+        Drawable d = getResources().getDrawable(R.drawable.ic_bookmark_border_white_48dp);
+        SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
+        SharedPreferences.Editor editor = prefs.edit();
+        String prefMez=prefs.getString("bookMarkedMez",null);
 
-                    Log.i("Mezmur", prefs.getString("bookMarkedMez", null));
-                    View all=findViewById(R.id.all);
-                    Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
-                    View view = snack.getView();
-                    TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
-                    tv.setTextColor(Color.WHITE);
-                    snack.show();
+        if(!checkIfMezmurIsBookmarked(mezmurId)){
 
-                }else{
-                    //try {
+            if(prefMez == null){// If the shared preferences is null
 
-                    if(prefMez != null){
-                        JSONArray s= null;
-                        try {
-                            s = new JSONArray(prefMez);
-                            s.put(mezmurId);
-                            editor.putString("bookMarkedMez", s.toString());
-                            editor.apply();
-                            View all=findViewById(R.id.all);
-                            final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
-                            snack.setAction("ሐራይ", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    snack.dismiss();
-                                }
-                            });
-                            View view = snack.getView();
-                            TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
-                            tv.setTextColor(Color.WHITE);
-                            snack.show();
+                JSONArray json= new JSONArray();
+                json.put(mezmurId);
+                editor.putString("bookMarkedMez", json.toString());
+                editor.apply();
 
-                            Log.i("Mezmur", "appenedOnValue"+ prefs.getString("bookMarkedMez", null));
-                        } catch (JSONException e) {
-                            Log.i("Mezmur", e.getMessage());
-                        }
-                    }else{
-                        Log.e("Mezmur","PROBLEMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
-                    }
-//                } catch (JSONException e) {
-//                    Log.e("Mezmur",e.getMessage());
-//                }
-                }
+                Log.i("Mezmur", prefs.getString("bookMarkedMez", null));
+                View all=findViewById(R.id.all);
+                Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
+                View view = snack.getView();
+                TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+                tv.setTextColor(Color.WHITE);
+                snack.show();
+
             }else{
-                if(prefMez != null) {
-                    JSONArray s = null;
+                //try {
+
+                if(prefMez != null){
+                    JSONArray s= null;
                     try {
                         s = new JSONArray(prefMez);
-                        int count = s.length();
-                        for(int i=0; i < count; i++){
-                            if(s.get(i) == mezmurId){
-                                s.put(i, 0); break;
-                            }
-                        }
+                        s.put(mezmurId);
                         editor.putString("bookMarkedMez", s.toString());
                         editor.apply();
-                        Log.i("Mezmur", "madeOne 0" + prefs.getString("bookMarkedMez", null));
+                        View all=findViewById(R.id.all);
+                        final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
+                        snack.setAction("ሐራይ", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                snack.dismiss();
+                            }
+                        });
+                        View view = snack.getView();
+                        TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+                        tv.setTextColor(Color.WHITE);
+                        snack.show();
+
+                        Log.i("Mezmur", "appenedOnValue"+ prefs.getString("bookMarkedMez", null));
                     } catch (JSONException e) {
                         Log.i("Mezmur", e.getMessage());
                     }
+                }else{
+                    Log.e("Mezmur","PROBLEMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
                 }
+//                } catch (JSONException e) {
+//                    Log.e("Mezmur",e.getMessage());
+//                }
             }
-
-
-
-
-            if(item.getIcon().getConstantState().equals(d.getConstantState())) {
-                item.setIcon(R.drawable.ic_bookmark_white_48dp);
-            }else{
-                item.setIcon(R.drawable.ic_bookmark_border_white_48dp);
+        }else{
+            if(prefMez != null) {
+                JSONArray s = null;
+                try {
+                    s = new JSONArray(prefMez);
+                    int count = s.length();
+                    for(int i=0; i < count; i++){
+                        if(s.get(i) == mezmurId){
+                            s.put(i, 0); break;
+                        }
+                    }
+                    editor.putString("bookMarkedMez", s.toString());
+                    editor.apply();
+                    Log.i("Mezmur", "madeOne 0" + prefs.getString("bookMarkedMez", null));
+                } catch (JSONException e) {
+                    Log.i("Mezmur", e.getMessage());
+                }
             }
         }
 
 
-
-        return super.onOptionsItemSelected(item);
+        if(item.getIcon().getConstantState().equals(d.getConstantState())) {
+            item.setIcon(R.drawable.ic_bookmark_white_48dp);
+        }else{
+            item.setIcon(R.drawable.ic_bookmark_border_white_48dp);
+        }
     }
 }
