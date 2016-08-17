@@ -68,10 +68,15 @@ public class MezmurActivity extends AppCompatActivity {
             mezmurId=extras.getInt("id");
             String[] s=getMezmurById(this, mezmurId);
             setTitle(s[1]);
-            String a=mezmurOrg(s[2], s[3]);
+            String organizedMezmur=null;
+            if(s[3] != null) {
+                organizedMezmur = mezmurOrg(s[2], s[3]);
+            }else{
+                organizedMezmur = mezmurOrg(s[2], null);
+            }
             toolbar.setTitle(s[0]);
             Log.d("Mezmur", mezmurId+"");
-            mezmurTV.setText("\n" + s[1] +"\n" + a);
+            mezmurTV.setText("\n" + s[1] +"\n" + organizedMezmur);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
@@ -85,10 +90,13 @@ public class MezmurActivity extends AppCompatActivity {
         StringBuilder myMezmur=new StringBuilder();
         String divider = "\n *** \n";
         myMezmur.append(azmach);
-        myMezmur.append(divider);
-        teref=teref.replace("\n *** \n", "\n***\n");
-        teref=teref.replace("***","\n\n***\n");
-        myMezmur.append(teref);
+
+        if(teref != null){
+            myMezmur.append(divider);
+            teref=teref.replace("\n *** \n", "\n***\n");
+            teref=teref.replace("***","\n\n***\n");
+            myMezmur.append(teref);
+        }
 
         return myMezmur.toString();
     }
@@ -106,8 +114,6 @@ public class MezmurActivity extends AppCompatActivity {
                     xpp.nextTag();
                     Toast.makeText(MezmurActivity.this,xpp.getName().toString(),Toast.LENGTH_LONG).show();
                 }
-
-                //xpp.next();
 
                 String name=xpp.getName();
                 if(name != null){
@@ -127,7 +133,6 @@ public class MezmurActivity extends AppCompatActivity {
         }
         return  stringBuffer.toString();
     }
-
 
     public void processXml(Activity context) throws ParserConfigurationException, IOException, SAXException {
 
@@ -308,15 +313,9 @@ public class MezmurActivity extends AppCompatActivity {
                 editor.apply();
 
                 Log.i("Mezmur", prefs.getString("bookMarkedMez", null));
-                View all=findViewById(R.id.all);
-                Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
-                View view = snack.getView();
-                TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
-                tv.setTextColor(Color.WHITE);
-                snack.show();
+                showSavedSnack();
 
             }else{
-                //try {
 
                 if(prefMez != null){
                     JSONArray s= null;
@@ -325,29 +324,13 @@ public class MezmurActivity extends AppCompatActivity {
                         s.put(mezmurId);
                         editor.putString("bookMarkedMez", s.toString());
                         editor.apply();
-                        View all=findViewById(R.id.all);
-                        final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
-                        snack.setAction("ሐራይ", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                snack.dismiss();
-                            }
-                        });
-                        View view = snack.getView();
-                        TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
-                        tv.setTextColor(Color.WHITE);
-                        snack.show();
-
-                        Log.i("Mezmur", "appenedOnValue"+ prefs.getString("bookMarkedMez", null));
+                        showSavedSnack();
                     } catch (JSONException e) {
-                        Log.i("Mezmur", e.getMessage());
+
                     }
                 }else{
                     Log.e("Mezmur","PROBLEMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
                 }
-//                } catch (JSONException e) {
-//                    Log.e("Mezmur",e.getMessage());
-//                }
             }
         }else{
             if(prefMez != null) {
@@ -375,5 +358,19 @@ public class MezmurActivity extends AppCompatActivity {
         }else{
             item.setIcon(R.drawable.ic_bookmark_border_white_48dp);
         }
+    }
+    public  void showSavedSnack(){
+        View all=findViewById(R.id.all);
+        final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
+        View view = snack.getView();
+        TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+        tv.setTextColor(Color.WHITE);
+        snack.setAction("ሕራይ", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snack.dismiss();
+            }
+        });
+        snack.show();
     }
 }
