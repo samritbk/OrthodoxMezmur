@@ -3,6 +3,7 @@ package com.zinalabs.orthodoxmezmur;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -16,6 +17,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,20 +43,27 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class MezmurActivity extends AppCompatActivity {
+public class MezmurActivity extends AppCompatActivity implements View.OnClickListener{
 
-
+    Context context;
     TextView mezmurTV;
     InputStream in;
     Toolbar toolbar;
     int mezmurId;
+    EditText cat_et;
+    Button change_button;
+    View all;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mezmur);
 
         //ScrollingMovementMethod.getInstance();
+        context = this;
+        all=findViewById(R.id.all);
+        cat_et= (EditText) findViewById(R.id.cat_et);
+        change_button= (Button) findViewById(R.id.change_button);
         mezmurTV = (TextView) findViewById(R.id.mezmur);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -60,6 +72,7 @@ public class MezmurActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        change_button.setOnClickListener(this);
         in= this.getResources().openRawResource(R.raw.index);
 
         try {
@@ -80,7 +93,6 @@ public class MezmurActivity extends AppCompatActivity {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-        //---------------------------------------------------------------------------------------
 
     }
 
@@ -100,6 +112,7 @@ public class MezmurActivity extends AppCompatActivity {
 
         return myMezmur.toString();
     }
+
     public String getMezmurFromXml(Activity activity) throws IOException, XmlPullParserException {
         StringBuilder stringBuffer = new StringBuilder();
         Resources res = activity.getResources();
@@ -231,6 +244,25 @@ public class MezmurActivity extends AppCompatActivity {
     }
 
 
+    public void changeMezmurCatById(Context context, int mezmurId, String newValue) throws ParserConfigurationException, IOException, SAXException {
+
+        DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder= documentBuilderFactory.newDocumentBuilder();
+        Document xmlDocument = documentBuilder.parse(in);
+
+        org.w3c.dom.Element rootElement=xmlDocument.getDocumentElement();
+
+        NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
+
+        Node myNode=nodes.item(mezmurId-1);
+        //NodeList myNodeChildren=myNode.getChildNodes();
+        Toast.makeText(context, myNode.getAttributes().getNamedItem("category").getTextContent(),Toast.LENGTH_LONG).show();
+        //----------------------------------------------------------------------------
+        //myNode.getAttributes().getNamedItem("category").setTextContent(newValue);
+        myNode.getAttributes().getNamedItem("category").setNodeValue(newValue);
+        //-----------------------------------------------------------------------------
+
+    }
 
     private boolean checkIfMezmurIsBookmarked(int mezmurId){
         SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
@@ -242,7 +274,7 @@ public class MezmurActivity extends AppCompatActivity {
                 int count=a.length();
 
                 for(int i=0; i < count; i++){
-                    if(a.get(i) == mezmurId){
+                    if(Integer.parseInt(a.get(i).toString()) == mezmurId){
                         toReturn = true;
                         break;
                     }
@@ -282,12 +314,13 @@ public class MezmurActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }else if(id == R.id.action_read_mode){
-            AlertDialog.Builder b= new AlertDialog.Builder(MezmurActivity.this);
-            b.create();
-            b.setTitle("Ok");
-            b.show();
-            item.setIcon(R.drawable.ic_view_day);
+        }else if(id == R.id.action_category_changer){
+
+//            cat_et.setVisibility(View.VISIBLE);
+//            change_button.setVisibility(View.VISIBLE);
+//            cat_et.setFocusableInTouchMode(true);
+//            cat_et.setFocusable(true);
+//            cat_et.requestFocus();
 
         }else if (id== R.id.action_bookmark){
 
@@ -339,7 +372,7 @@ public class MezmurActivity extends AppCompatActivity {
                     s = new JSONArray(prefMez);
                     int count = s.length();
                     for(int i=0; i < count; i++){
-                        if(s.get(i) == mezmurId){
+                        if(Integer.parseInt(s.get(i).toString()) == mezmurId){
                             s.put(i, 0); break;
                         }
                     }
@@ -360,7 +393,6 @@ public class MezmurActivity extends AppCompatActivity {
         }
     }
     public  void showSavedSnack(){
-        View all=findViewById(R.id.all);
         final Snackbar snack = Snackbar.make(all, "ሴቭ ተግይራ", Snackbar.LENGTH_LONG);
         View view = snack.getView();
         TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
@@ -372,5 +404,30 @@ public class MezmurActivity extends AppCompatActivity {
             }
         });
         snack.show();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.change_button:
+                if(!cat_et.getText().equals("null") || !cat_et.getText().equals("")){
+                    boolean done=false;
+                    try {
+                        changeMezmurCatById(context, mezmurId, cat_et.getText().toString());
+                        done=true;
+                    } catch (ParserConfigurationException e) {
+                        Log.e("Mezmur",e.getMessage());
+                        done=false;
+                    } catch (IOException | SAXException e) {
+                        e.printStackTrace();
+                        done=false;
+                    }
+                    if(done){
+                        Toast.makeText(this, "Its Done bro!", Toast.LENGTH_LONG).show();
+                    }
+                }
+                    Toast.makeText(MezmurActivity.this, cat_et.getText().toString(), Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 }

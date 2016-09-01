@@ -16,10 +16,10 @@
         android:title="ሴቭ"/>
 
     <item
-    android:id="@+id/action_read_mode"
+    android:id="@+id/action_category_changer"
     android:orderInCategory="100"
-    android:icon="@drawable/ic_view_stream"
+    android:icon="@drawable/ic_info_white_48dp"
     app:showAsAction="never"
-    android:title="ኣንብብ"/>
+    android:title="ካተግሪ መከየሪ"/>
 
 </menu>

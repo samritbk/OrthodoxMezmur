@@ -3,8 +3,11 @@ package com.zinalabs.orthodoxmezmur;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,12 +56,15 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
     RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_mezmur);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -93,6 +99,134 @@ public class ListMezmurActivity extends AppCompatActivity implements AdapterView
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+
+
+        try {
+            Constant.bookMarkedIds=getBookmarkedIds();
+            inflateBookmarkedList(R.id.bookmarkedList, Constant.bookMarkedIds);
+        } catch (JSONException | IOException | SAXException | ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        ListView bookMarkedList= (ListView) findViewById(R.id.bookmarkedList);
+        bookMarkedList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent MezmurActivity = new Intent(ListMezmurActivity.this, MezmurActivity.class);
+                int mezmurId=0;
+                try {
+                    mezmurId = (int) Constant.bookMarkedIds.get(i);
+                    //Log.v("Mezmur", mezmurId+" from "+Constant.bookMarkedIds.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MezmurActivity.putExtra("id", mezmurId);
+                startActivity(MezmurActivity);
+            }
+        });
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.hello_world, R.string.hello_world){
+
+            public void onDrawerClosed(View view)
+            {
+                supportInvalidateOptionsMenu();
+                //drawerOpened = false;
+            }
+
+            public void onDrawerOpened(View drawerView)
+            {
+                supportInvalidateOptionsMenu();
+                //drawerOpened = true;
+            }
+        };
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        //mDrawerToggle.setDrawerIndicatorEnabled(true);
+        // Set the drawer toggle as the DrawerListener
+        drawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
+
+
+
+
+    }
+    private JSONArray getBookmarkedIds() throws JSONException {
+        SharedPreferences prefs = getSharedPreferences("Mezmur", 0);
+        String s= prefs.getString("bookMarkedMez", null);
+        JSONArray toReturn= new JSONArray();
+        if(s != null){
+            try {
+                JSONArray a= new JSONArray(s);
+                int count=a.length();
+
+                for(int i=0; i < count; i++){
+                    if(Integer.parseInt(a.get(i).toString()) != 0){
+                        toReturn.put(a.get(i));
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return toReturn;
+    }
+
+    private void inflateBookmarkedList(int ListViewId, JSONArray bookMarkedData) throws JSONException, IOException, SAXException, ParserConfigurationException {
+        //BOOKMARKED = bookMarkedData;
+        Log.e("Mezmur", bookMarkedData.toString());
+        int count= bookMarkedData.length();
+        String[] toReturn = new String[count];
+        for(int i= 0; i < count; i++){
+            int mezmurID=bookMarkedData.getInt(i);
+            //String[] MEZdata= getMezmurById(context, mezmurID);
+            String[] MEZdata=getMezmurById(this, mezmurID);
+            Log.e("Mezmur", mezmurID + MEZdata[1]);
+            toReturn[i]= MEZdata[1];
+            //TODO: Inflate the data in to listView
+        }
+
+        if(toReturn.length != 0){
+            ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,toReturn);
+            ListView bookMarkedList= (ListView) findViewById(ListViewId);
+            bookMarkedList.setAdapter(adapter);
+        }
+
+    }
+
+    public String[] getMezmurById(Activity context, int mezmurId) throws ParserConfigurationException, IOException, SAXException {
+        String[] returna=new String[4];
+        // id
+        // title
+        // azmach
+        // teref
+        InputStream in= context.getResources().openRawResource(R.raw.index);
+
+        DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder= documentBuilderFactory.newDocumentBuilder();
+        Document xmlDocument = documentBuilder.parse(in);
+
+        org.w3c.dom.Element rootElement=xmlDocument.getDocumentElement();
+
+        NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
+
+        Node myNode=nodes.item(mezmurId-1);
+        NodeList myNodeChildren=myNode.getChildNodes();
+
+        returna[0] = myNode.getAttributes().getNamedItem("id").getTextContent();
+        returna[1] = myNode.getAttributes().getNamedItem("title").getTextContent();
+
+        for (int i=0;i < myNodeChildren.getLength(); i++){
+            Node currentChild=myNodeChildren.item(i);
+            if(currentChild.getNodeName().equalsIgnoreCase("azmach")){
+                returna[2] = currentChild.getTextContent().toString();
+            }else if(currentChild.getNodeName().equalsIgnoreCase("teref")){
+                returna[3] = currentChild.getTextContent().toString();
+            }
+
+        }
+
+        return returna;
     }
 
     private void inflateData(){

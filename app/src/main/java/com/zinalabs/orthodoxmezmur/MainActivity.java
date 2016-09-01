@@ -16,6 +16,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -104,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         }
         lists.setOnItemClickListener(this);
 
-
         try {
             Constant.bookMarkedIds=getBookmarkedIds();
             inflateBookmarkedList(R.id.bookmarkedList, Constant.bookMarkedIds);
@@ -150,7 +150,17 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Set the drawer toggle as the DrawerListener
         drawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
+
+        try {
+            searchMezmurByTitleFraction("ኣማን");
+        } catch (ParserConfigurationException | IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
+
     }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -164,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private  void inflateBookmarkedList(int ListViewId, JSONArray bookMarkedData) throws JSONException, IOException, SAXException, ParserConfigurationException {
+    private void inflateBookmarkedList(int ListViewId, JSONArray bookMarkedData) throws JSONException, IOException, SAXException, ParserConfigurationException {
         //BOOKMARKED = bookMarkedData;
         Log.e("Mezmur", bookMarkedData.toString());
         int count= bookMarkedData.length();
@@ -195,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 int count=a.length();
 
                 for(int i=0; i < count; i++){
-                    if(a.get(i) != 0){
+                    if(Integer.parseInt(a.get(i).toString()) != 0){
                         toReturn.put(a.get(i));
                     }
                 }
@@ -418,6 +428,34 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         return returna;
     }
+    public void searchMezmurByTitleFraction(String term) throws ParserConfigurationException, IOException, SAXException {
+        InputStream in= context.getResources().openRawResource(R.raw.index);
+
+        DocumentBuilderFactory documentBuilderFactory= DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder= documentBuilderFactory.newDocumentBuilder();
+        Document xmlDocument = documentBuilder.parse(in);
+
+        org.w3c.dom.Element rootElement=xmlDocument.getDocumentElement();
+
+        NodeList nodes=rootElement.getElementsByTagName("mezmur"); // bigData TAG
+
+        int count=nodes.getLength();
+        String[] returna=new String[count];
+        String a=null;
+        for(int i=0;i < count;i++){
+            Node myNode=nodes.item(i);
+            if(myNode.getAttributes().getNamedItem("title") != null){
+                if(!term.isEmpty() && myNode.getAttributes().getNamedItem("title").getTextContent().contains(term)){
+                    Log.v("Mez", myNode.getAttributes().getNamedItem("title").getTextContent().toString());
+
+                    a+="\n"+myNode.getAttributes().getNamedItem("title").getTextContent().toString();
+                }
+            }
+        }
+        AlertDialog.Builder al= new AlertDialog.Builder(context);
+        al.setMessage(a);
+        al.show();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -430,7 +468,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
-
                 return false;
             }
         });
@@ -442,13 +479,22 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //Toast.makeText(MainActivity.this,"Submitted query"+query,Toast.LENGTH_LONG).show();
+                try {
+                    searchMezmurByTitleFraction(query);
+                } catch (ParserConfigurationException | IOException | SAXException e) {
+                    e.printStackTrace();
+                }
 
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Toast.makeText(context, newText, Toast.LENGTH_LONG).show();
+//                try {
+//                    searchMezmurByTitleFraction(newText);
+//                } catch (ParserConfigurationException | IOException | SAXException e) {
+//                    e.printStackTrace();
+//                }
                 return false;
             }
         });
